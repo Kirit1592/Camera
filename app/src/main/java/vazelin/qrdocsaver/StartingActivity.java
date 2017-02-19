@@ -36,28 +36,11 @@ public class StartingActivity extends AppCompatActivity implements View.OnClickL
     ListView listView_savedDocs;
     Button buttonStartScan;
 
-    Size [] mPreviewSize;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //scanBarcode(null);
-
-        CameraManager camManager =  (CameraManager) getSystemService(CAMERA_SERVICE);
-        try {
-            String cameraId = camManager.getCameraIdList()[0];
-            CameraCharacteristics characteristics = camManager.getCameraCharacteristics(cameraId);
-
-        Size map = characteristics.get(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE);
-        //mPreviewSize = map.getOutputSizes(SurfaceTexture.class);
-        Log.v("lal?!","luck?!");
-        }
-        catch (Exception e){
-            Log.v("lal?!","fuck");
-        }
 
         initializeUIAndLinks();
     }
@@ -90,10 +73,16 @@ public class StartingActivity extends AppCompatActivity implements View.OnClickL
                 Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
+                captureAndWriteDocumentToSDCard(result.getContents());
             }
         } else {
             // This is important, otherwise the result will not be passed to the fragment
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    protected void captureAndWriteDocumentToSDCard(String docName){
+        String fullPath = editText_pathToFolder.getText() + "/" + docName + "/Doc.jpg";
+        new CameraHelper().MakeAShot(fullPath, (CameraManager) getSystemService(CAMERA_SERVICE));
     }
 }
