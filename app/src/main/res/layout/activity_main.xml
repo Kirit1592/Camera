@@ -18,7 +18,7 @@
         android:inputType="textPersonName"
         android:text="Path to folder"
         android:ems="10"
-        android:id="@+id/editText_PathToFolder"
+        android:id="@+id/editText_pathToFolder"
         android:layout_marginBottom="@dimen/activity_vertical_margin"/>
 
     <ListView
@@ -33,5 +33,6 @@
         android:textAllCaps="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/button" />
+        android:id="@+id/button_beginScan"
+        />
 </LinearLayout>
