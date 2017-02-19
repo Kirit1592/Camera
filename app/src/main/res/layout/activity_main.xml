@@ -23,9 +23,9 @@
 
     <ListView
         android:layout_width="match_parent"
-        android:layout_height="270dp"
+        android:layout_height="0dp"
         android:id="@+id/listView_savedDocs"
-        android:layout_weight="0.71"
+        android:layout_weight="1"
         android:layout_marginBottom="@dimen/activity_vertical_margin"/>
 
     <Button
