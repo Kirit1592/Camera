@@ -1,14 +1,11 @@
 package vazelin.qrdocsaver;
 
-import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
-import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.ImageReader;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -17,14 +14,7 @@ import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
 
-import java.security.Security;
 import java.util.Arrays;
-
-
-
-
-
-import static android.content.Context.CAMERA_SERVICE;
 
 /**
  * Created by Futurama on 2/20/2017.
@@ -35,7 +25,7 @@ public class CameraHelper {
     private CameraManager camManager = null;
     private Size mPreviewSize = null;
     private CameraDevice mCameraDevice = null;
-    private CaptureRequest.Builder mPreviewBuilder = null;
+    private CaptureRequest.Builder mRequestBuilder = null;
     private CameraCaptureSession mPreviewSession = null;
     private final static String TAG = "SimpleCamera";
     private TextureView mTextureView = null;
@@ -48,70 +38,19 @@ public class CameraHelper {
         camManager = managerToUse;
         try{
             String cameraId = camManager.getCameraIdList()[0];
-            CameraCharacteristics characteristics = camManager.getCameraCharacteristics(cameraId);
-            StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-            mPreviewSize = map.getOutputSizes(SurfaceTexture.class)[0];
 
-            camManager.openCamera(cameraId, mStateCallback, null);
-        }
-        catch(CameraAccessException e) {
-            e.printStackTrace();
+            camManager.openCamera(cameraId, mCameraStateCallback, null);
         }
         catch (SecurityException e){
             e.printStackTrace();
         }
+        catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
-    private TextureView.SurfaceTextureListener mSurfaceTextureListner = new TextureView.SurfaceTextureListener() {
 
-        @Override
-        public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-            // TODO Auto-generated method stub
-            //Log.i(TAG, "onSurfaceTextureUpdated()");
-
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width,
-                                                int height) {
-            // TODO Auto-generated method stub
-            Log.i(TAG, "onSurfaceTextureSizeChanged()");
-
-        }
-
-        @Override
-        public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-            // TODO Auto-generated method stub
-            Log.i(TAG, "onSurfaceTextureDestroyed()");
-            return false;
-        }
-
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width,
-                                              int height) {
-            // TODO Auto-generated method stub
-            Log.i(TAG, "onSurfaceTextureAvailable()");
-
-            CameraManager manager = (CameraManager) getSystemService(CAMERA_SERVICE);
-            try{
-                String cameraId = manager.getCameraIdList()[0];
-                CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
-                StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-                mPreviewSize = map.getOutputSizes(SurfaceTexture.class)[0];
-
-                manager.openCamera(cameraId, mStateCallback, null);
-            }
-            catch(CameraAccessException e)
-            {
-                e.printStackTrace();
-            }
-
-        }
-    };
-
-
-
-    private CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
+    private CameraDevice.StateCallback mCameraStateCallback = new CameraDevice.StateCallback() {
 
         @Override
         public void onOpened(CameraDevice camera) {
@@ -119,22 +58,15 @@ public class CameraHelper {
             Log.i(TAG, "onOpened");
             mCameraDevice = camera;
 
-            SurfaceTexture texture = mTextureView.getSurfaceTexture();
-            if (texture == null) {
-                Log.e(TAG, "texture is null");
-                return;
-            }
-
-            texture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
-            Surface surface = new Surface(texture);
+            ImageReader surface = new ImageReader.newInstance(100,100,0,1);
 
             try {
-                mPreviewBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+                mRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
             } catch (CameraAccessException e){
                 e.printStackTrace();
             }
 
-            mPreviewBuilder.addTarget(surface);
+            mRequestBuilder.addTarget(surface);
 
             try {
                 mCameraDevice.createCaptureSession(Arrays.asList(surface), mPreviewStateCallback, null);
@@ -166,14 +98,14 @@ public class CameraHelper {
             Log.i(TAG, "onConfigured");
             mPreviewSession = session;
 
-            mPreviewBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+            mRequestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
 
             HandlerThread backgroundThread = new HandlerThread("CameraPreview");
             backgroundThread.start();
             Handler backgroundHandler = new Handler(backgroundThread.getLooper());
 
             try {
-                mPreviewSession.setRepeatingRequest(mPreviewBuilder.build(), null, backgroundHandler);
+                mPreviewSession.setRepeatingRequest(mRequestBuilder.build(), null, backgroundHandler);
             } catch (CameraAccessException e) {
                 e.printStackTrace();
             }
