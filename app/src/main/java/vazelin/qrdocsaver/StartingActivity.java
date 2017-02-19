@@ -83,6 +83,7 @@ public class StartingActivity extends AppCompatActivity implements View.OnClickL
 
     protected void captureAndWriteDocumentToSDCard(String docName){
         String fullPath = editText_pathToFolder.getText() + "/" + docName + "/Doc.jpg";
+        boolean a = (new File(fullPath)).mkdirs();
         new CameraHelper().MakeAShot(fullPath, (CameraManager) getSystemService(CAMERA_SERVICE));
     }
 }
