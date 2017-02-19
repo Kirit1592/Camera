@@ -17,7 +17,7 @@ import java.io.File;
 
 public class StartingActivity extends AppCompatActivity {
 
-    File defaultDocPath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getPath());
+    File defaultDocPath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getPath() + "/Scans");
 
     EditText editText_pathToFolder;
     ListView listView_savedDocs;
@@ -30,15 +30,17 @@ public class StartingActivity extends AppCompatActivity {
 
         scanBarcode(null);
 
+        initializeUIAndLinks();
     }
 
     private void initializeUIAndLinks(){
         editText_pathToFolder = (EditText)  findViewById(R.id.editText_PathToFolder);
         listView_savedDocs =    (ListView)  findViewById(R.id.listView_savedDocs);
+
+        editText_pathToFolder.setText(defaultDocPath.getPath());
     }
 
     public void scanBarcode(View view) {
         new IntentIntegrator(this).initiateScan();
     }
-
 }
