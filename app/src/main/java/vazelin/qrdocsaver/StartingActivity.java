@@ -28,7 +28,7 @@ public class StartingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        scanBarcode(null);
+        //scanBarcode(null);
 
         initializeUIAndLinks();
     }
