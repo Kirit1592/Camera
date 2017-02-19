@@ -1,5 +1,9 @@
 package vazelin.qrdocsaver;
 
+import android.graphics.SurfaceTexture;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.support.v7.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -7,6 +11,7 @@ import android.os.Environment;
 import android.os.Bundle;
 
 import android.util.Log;
+import android.util.Size;
 import android.view.View;
 
 import android.widget.Button;
@@ -30,6 +35,9 @@ public class StartingActivity extends AppCompatActivity implements View.OnClickL
     EditText editText_pathToFolder;
     ListView listView_savedDocs;
     Button buttonStartScan;
+
+    Size [] mPreviewSize;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -37,6 +45,19 @@ public class StartingActivity extends AppCompatActivity implements View.OnClickL
         setContentView(R.layout.activity_main);
 
         //scanBarcode(null);
+
+        CameraManager camManager =  (CameraManager) getSystemService(CAMERA_SERVICE);
+        try {
+            String cameraId = camManager.getCameraIdList()[0];
+            CameraCharacteristics characteristics = camManager.getCameraCharacteristics(cameraId);
+
+        Size map = characteristics.get(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE);
+        //mPreviewSize = map.getOutputSizes(SurfaceTexture.class);
+        Log.v("lal?!","luck?!");
+        }
+        catch (Exception e){
+            Log.v("lal?!","fuck");
+        }
 
         initializeUIAndLinks();
     }
