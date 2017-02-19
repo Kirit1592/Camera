@@ -1,17 +1,12 @@
 package vazelin.qrdocsaver;
 
-import android.graphics.SurfaceTexture;
-import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
-import android.hardware.camera2.params.StreamConfigurationMap;
 import android.support.v7.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Environment;
 import android.os.Bundle;
 
-import android.util.Log;
-import android.util.Size;
 import android.view.View;
 
 import android.widget.Button;
@@ -82,8 +77,8 @@ public class StartingActivity extends AppCompatActivity implements View.OnClickL
     }
 
     protected void captureAndWriteDocumentToSDCard(String docName){
-        String fullPath = editText_pathToFolder.getText() + "/" + docName + "/Doc.jpg";
-        boolean a = (new File(fullPath)).mkdirs();
-        new CameraHelper().MakeAShot(fullPath, (CameraManager) getSystemService(CAMERA_SERVICE));
+        String dirPath = editText_pathToFolder.getText() + "/" + docName + "/";
+        boolean a = (new File(dirPath)).mkdirs();
+        new CameraHelper().captureFromCamAndSaveToSDCard(dirPath + "Doc.jpg", (CameraManager) getSystemService(CAMERA_SERVICE));
     }
 }
