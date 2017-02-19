@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">QRDocSaver</string>
+    <string name="buttonText_scan">Begin Scanning</string>
+    <string name="textPlaceHolder_PathToFolder">Path to folder</string>
 </resources>
