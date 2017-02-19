@@ -1,7 +1,9 @@
 package vazelin.qrdocsaver;
 
+import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
@@ -23,13 +25,13 @@ import java.util.Arrays;
 public class CameraHelper {
 
     private CameraManager camManager = null;
-    private Size mPreviewSize = null;
+    private Size mPictureSize = null;
     private CameraDevice mCameraDevice = null;
     private CaptureRequest.Builder mRequestBuilder = null;
     private CameraCaptureSession mPreviewSession = null;
     private final static String TAG = "SimpleCamera";
     private TextureView mTextureView = null;
-    private ImageReader ireader = null;
+    private ImageReader iReader = null;
 
     public void MakeAShot(String filePath, CameraManager managerToUse){
         // TODO Auto-generated method stub
@@ -38,6 +40,9 @@ public class CameraHelper {
         camManager = managerToUse;
         try{
             String cameraId = camManager.getCameraIdList()[0];
+
+            CameraCharacteristics characteristics = camManager.getCameraCharacteristics(cameraId);
+            mPictureSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE);
 
             camManager.openCamera(cameraId, mCameraStateCallback, null);
         }
@@ -58,7 +63,7 @@ public class CameraHelper {
             Log.i(TAG, "onOpened");
             mCameraDevice = camera;
 
-            ImageReader surface = new ImageReader.newInstance(100,100,0,1);
+            iReader = ImageReader.newInstance(100,100, ImageFormat.JPEG, 1);
 
             try {
                 mRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
@@ -66,10 +71,10 @@ public class CameraHelper {
                 e.printStackTrace();
             }
 
-            mRequestBuilder.addTarget(surface);
+            mRequestBuilder.addTarget(iReader.getSurface());
 
             try {
-                mCameraDevice.createCaptureSession(Arrays.asList(surface), mPreviewStateCallback, null);
+                mCameraDevice.createCaptureSession(Arrays.asList(iReader.getSurface()), mPreviewStateCallback, null);
             } catch (CameraAccessException e) {
                 e.printStackTrace();
             }
