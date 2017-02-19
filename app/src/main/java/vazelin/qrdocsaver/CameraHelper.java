@@ -1,5 +1,7 @@
 package vazelin.qrdocsaver;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -8,7 +10,9 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
+import android.media.Image;
 import android.media.ImageReader;
+import android.media.ImageWriter;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
@@ -16,13 +20,16 @@ import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
  * Created by Futurama on 2/20/2017.
  */
 
-public class CameraHelper {
+public class CameraHelper implements ImageReader.OnImageAvailableListener {
 
     private CameraManager camManager = null;
     private Size mPictureSize = null;
@@ -32,6 +39,7 @@ public class CameraHelper {
     private final static String TAG = "SimpleCamera";
     private TextureView mTextureView = null;
     private ImageReader iReader = null;
+    private String mPath;
 
     public void MakeAShot(String filePath, CameraManager managerToUse){
         // TODO Auto-generated method stub
@@ -63,7 +71,7 @@ public class CameraHelper {
             Log.i(TAG, "onOpened");
             mCameraDevice = camera;
 
-            iReader = ImageReader.newInstance(100,100, ImageFormat.JPEG, 1);
+            iReader = ImageReader.newInstance(mPictureSize.getWidth(), mPictureSize.getHeight(), ImageFormat.JPEG, 1);
 
             try {
                 mRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
@@ -122,10 +130,22 @@ public class CameraHelper {
             // TODO Auto-generated method stub
             Log.e(TAG, "CameraCaptureSession Configure failed");
         }
-
-
     };
 
 
+    @Override
+    public void onImageAvailable(ImageReader reader) {
+        Image img = reader.acquireLatestImage();
+        ByteBuffer buffer = img.getPlanes()[0].getBuffer();
+        byte[] bytes = new byte[buffer.capacity()];
+        buffer.get(bytes);
+        Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
+
+        try {
+            File myFile = new File(mPath);
+            FileOutputStream out = new FileOutputStream(myFile);
+            bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, out);
+        }catch(Exception e){e.printStackTrace();}
+    }
 
 }
