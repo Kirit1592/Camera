@@ -12,12 +12,10 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.media.Image;
 import android.media.ImageReader;
-import android.media.ImageWriter;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 import android.util.Size;
-import android.view.Surface;
 import android.view.TextureView;
 
 import java.io.File;
@@ -35,15 +33,17 @@ public class CameraHelper implements ImageReader.OnImageAvailableListener {
     private Size mPictureSize = null;
     private CameraDevice mCameraDevice = null;
     private CaptureRequest.Builder mRequestBuilder = null;
-    private CameraCaptureSession mPreviewSession = null;
+    private CameraCaptureSession mCapturingSession = null;
     private final static String TAG = "SimpleCamera";
     private TextureView mTextureView = null;
     private ImageReader iReader = null;
     private String mPath;
 
-    public void MakeAShot(String filePath, CameraManager managerToUse){
+    public void captureFromCamAndSaveToSDCard(String filePath, CameraManager managerToUse){
         // TODO Auto-generated method stub
         Log.i(TAG, "onSurfaceTextureAvailable()");
+
+        mPath = filePath;
 
         camManager = managerToUse;
         try{
@@ -92,14 +92,14 @@ public class CameraHelper implements ImageReader.OnImageAvailableListener {
         public void onError(CameraDevice camera, int error) {
             // TODO Auto-generated method stub
             Log.e(TAG, "onError");
-
+            mCameraDevice.close();
         }
 
         @Override
         public void onDisconnected(CameraDevice camera) {
             // TODO Auto-generated method stub
             Log.e(TAG, "onDisconnected");
-
+            mCameraDevice.close();
         }
     };
 
@@ -109,16 +109,17 @@ public class CameraHelper implements ImageReader.OnImageAvailableListener {
         public void onConfigured(CameraCaptureSession session) {
             // TODO Auto-generated method stub
             Log.i(TAG, "onConfigured");
-            mPreviewSession = session;
+            mCapturingSession = session;
 
             mRequestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
 
-            HandlerThread backgroundThread = new HandlerThread("CameraPreview");
-            backgroundThread.start();
-            Handler backgroundHandler = new Handler(backgroundThread.getLooper());
+
+//            HandlerThread backgroundThread = new HandlerThread("CameraPreview");
+//            backgroundThread.start();
+//            Handler backgroundHandler = new Handler(backgroundThread.getLooper());
 
             try {
-                mPreviewSession.setRepeatingRequest(mRequestBuilder.build(), null, backgroundHandler);
+                mCapturingSession.capture(mRequestBuilder.build(), null, null);
             } catch (CameraAccessException e) {
                 e.printStackTrace();
             }
@@ -139,6 +140,8 @@ public class CameraHelper implements ImageReader.OnImageAvailableListener {
         ByteBuffer buffer = img.getPlanes()[0].getBuffer();
         byte[] bytes = new byte[buffer.capacity()];
         buffer.get(bytes);
+        mCameraDevice.close();
+
         Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
 
         try {
