@@ -76,6 +76,7 @@ public class CameraHelper implements ImageReader.OnImageAvailableListener {
             try {
                 mRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
             } catch (CameraAccessException e){
+                Log.e(TAG, "Capture request creation failed!");
                 e.printStackTrace();
             }
 
@@ -91,8 +92,8 @@ public class CameraHelper implements ImageReader.OnImageAvailableListener {
         @Override
         public void onError(CameraDevice camera, int error) {
             // TODO Auto-generated method stub
-            Log.e(TAG, "onError");
-            mCameraDevice.close();
+            Log.e(TAG, String.format("onError %d", error));
+            //mCameraDevice.close();
         }
 
         @Override
