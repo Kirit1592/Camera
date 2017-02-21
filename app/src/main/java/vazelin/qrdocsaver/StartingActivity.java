@@ -104,6 +104,9 @@ public class StartingActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1337) {
+            return;
+        }
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if(result != null) {
             if(result.getContents() == null) {
@@ -129,10 +132,11 @@ public class StartingActivity extends AppCompatActivity implements View.OnClickL
     private void captureAndWriteDocumentToSDCard(String subfolderName) {
         String dirPath = editText_pathToFolder.getText() + "/" + subfolderName + "/";
         //dirPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getPath();
+        new File(dirPath).mkdirs();
 
         File output = new File(new File(getFilesDir(), DOCUMENTS), "lol.jpg");
         Intent i=new CameraActivity.IntentBuilder(StartingActivity.this)
-                //.skipConfirm()
+                .skipConfirm()
                 .facing(Facing.BACK)
                 .to(new File(dirPath, "Doc.jpg"))
                 .debug()
