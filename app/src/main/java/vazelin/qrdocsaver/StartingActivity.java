@@ -43,6 +43,7 @@ public class StartingActivity extends AppCompatActivity implements View.OnClickL
 
     final int PHOTO_RESULT = 1;
     private static final int REQUEST_WRITE_STORAGE = 112;
+    private final String DOCUMENTS = "documents";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,7 +134,7 @@ public class StartingActivity extends AppCompatActivity implements View.OnClickL
             tmpImage= File.createTempFile(
                 "Doc",  /* prefix */
                 ".jpg",         /* suffix */
-                dirF      /* directory */
+                dirF      /* dir ectory */
         );
         }catch (IOException e){
             Log.e("Main:", "Failed to create the temp file!");
@@ -141,11 +142,14 @@ public class StartingActivity extends AppCompatActivity implements View.OnClickL
             return;
         }
 
-        Uri fileUri = FileProvider.getUriForFile(getApplicationContext(), "vazelin.qrdocsaver.StartingActivity", tmpImage);
+        File output = new File(new File(getFilesDir(), DOCUMENTS), "lol.jpg");
 
+
+        Uri fileUri = FileProvider.getUriForFile(getApplicationContext(), "vazelin.qrdocsaver.StartingActivity", output);
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if(takePictureIntent.resolveActivity(getPackageManager())!=null){
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+            //takePictureIntent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             startActivityForResult(takePictureIntent, PHOTO_RESULT);
         }
     }
