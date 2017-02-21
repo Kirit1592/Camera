@@ -25,6 +25,11 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import com.commonsware.cwac.cam2.*;
+import com.commonsware.cwac.cam2.Facing;
+import com.commonsware.cwac.cam2.CameraActivity;
+import com.commonsware.cwac.cam2.util.Utils;
+
 //import android.hardware.camera2.*;
 
 import java.io.File;
@@ -124,34 +129,19 @@ public class StartingActivity extends AppCompatActivity implements View.OnClickL
     private void captureAndWriteDocumentToSDCard(String subfolderName) {
         String dirPath = editText_pathToFolder.getText() + "/" + subfolderName + "/";
         //dirPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getPath();
-        File dirF = new File("/storage/sdcard0/Documents/");
-        if (!(dirF.exists())){
-            Log.e("Main:", String.format("Creating dirs: %b", dirF.mkdirs()));
-        }
-        String fullPath = dirPath + "Doc.jpg";
-        File tmpImage;
-        try{
-            tmpImage= File.createTempFile(
-                "Doc",  /* prefix */
-                ".jpg",         /* suffix */
-                dirF      /* dir ectory */
-        );
-        }catch (IOException e){
-            Log.e("Main:", "Failed to create the temp file!");
-            e.printStackTrace();
-            return;
-        }
 
         File output = new File(new File(getFilesDir(), DOCUMENTS), "lol.jpg");
+        Intent i=new CameraActivity.IntentBuilder(StartingActivity.this)
+                //.skipConfirm()
+                .facing(Facing.BACK)
+                .to(new File(dirPath, "Doc.jpg"))
+                .debug()
+                .zoomStyle(ZoomStyle.NONE)
+                .updateMediaStore()
+                .build();
 
+        startActivityForResult(i, 1337);
 
-        Uri fileUri = FileProvider.getUriForFile(getApplicationContext(), "vazelin.qrdocsaver.StartingActivity", output);
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if(takePictureIntent.resolveActivity(getPackageManager())!=null){
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-            //takePictureIntent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-            startActivityForResult(takePictureIntent, PHOTO_RESULT);
-        }
     }
 
     protected void captureAndWriteDocumentToSDCard_INSTANT(String docName){
