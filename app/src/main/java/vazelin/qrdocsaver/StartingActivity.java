@@ -142,10 +142,10 @@ public class StartingActivity extends AppCompatActivity implements View.OnClickL
             return;
         }
 
-        File output = new File(new File(getFilesDir(), DOCUMENTS), "lol.jpg");
+        //File output = new File(new File(getFilesDir(), DOCUMENTS), "lol.jpg");
 
 
-        Uri fileUri = FileProvider.getUriForFile(getApplicationContext(), "vazelin.qrdocsaver.StartingActivity", output);
+        Uri fileUri = Uri.fromFile(tmpImage);
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if(takePictureIntent.resolveActivity(getPackageManager())!=null){
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
