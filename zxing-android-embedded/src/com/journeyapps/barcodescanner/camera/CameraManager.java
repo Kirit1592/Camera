@@ -302,7 +302,7 @@ public final class CameraManager {
     }
 
     private static List<Size> getPreviewSizes(Camera.Parameters parameters) {
-        List<Camera.Size> rawSupportedSizes = parameters.getSupportedPreviewSizes();
+        List<Camera.Size> rawSupportedSizes = parameters.getSupportedPictureSizes();
         List<Size> previewSizes = new ArrayList<>();
         if (rawSupportedSizes == null) {
             Camera.Size defaultSize = parameters.getPreviewSize();
