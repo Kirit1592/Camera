@@ -25,6 +25,9 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import com.androidhiddencamera.CameraConfig;
+import com.androidhiddencamera.HiddenCameraFragment;
+import com.androidhiddencamera.config.*;
 //import android.hardware.camera2.*;
 
 import java.io.File;
@@ -33,7 +36,7 @@ import java.io.IOException;
 
 import static com.google.zxing.integration.android.IntentIntegrator.QR_CODE_TYPES;
 
-public class StartingActivity extends AppCompatActivity implements View.OnClickListener{
+public class StartingActivity extends AppCompatActivity implements View.OnClickListener {
 
     File defaultDocPath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath() + "/Scans");
 
@@ -56,6 +59,8 @@ public class StartingActivity extends AppCompatActivity implements View.OnClickL
         initializeUIAndLinks();
 
         testSDWrite();
+
+
     }
 
     private void testSDWrite() {
@@ -70,20 +75,21 @@ public class StartingActivity extends AppCompatActivity implements View.OnClickL
             FileWriter sfw = new FileWriter(sf, false);
             sfw.write("Writing right onto yo SD!");
             sfw.close();
-        }catch(IOException e){
+        } catch (IOException e) {
             Log.e("TestSDWrite: ", "Error!!!");
             e.printStackTrace();
         }
 
     }
 
-    private void initializeUIAndLinks(){
-        editText_pathToFolder = (EditText)  findViewById(R.id.editText_pathToFolder);
-        listView_savedDocs =    (ListView)  findViewById(R.id.listView_savedDocs);
-        buttonStartScan =       (Button)    findViewById(R.id.button_beginScan);
+    private void initializeUIAndLinks() {
+        editText_pathToFolder = (EditText) findViewById(R.id.editText_pathToFolder);
+        listView_savedDocs = (ListView) findViewById(R.id.listView_savedDocs);
+        buttonStartScan = (Button) findViewById(R.id.button_beginScan);
 
         buttonStartScan.setOnClickListener(this);
         editText_pathToFolder.setText(defaultDocPath.getPath());
+
     }
 
     public void scanBarcode(View view) {
@@ -92,7 +98,7 @@ public class StartingActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public void onClick(View v) {
-        if(v.getId() == R.id.button_beginScan){
+        if (v.getId() == R.id.button_beginScan) {
             scanBarcode(null);
         }
     }
@@ -100,8 +106,8 @@ public class StartingActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if(result != null) {
-            if(result.getContents() == null) {
+        if (result != null) {
+            if (result.getContents() == null) {
                 Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
@@ -124,34 +130,18 @@ public class StartingActivity extends AppCompatActivity implements View.OnClickL
     private void captureAndWriteDocumentToSDCard(String subfolderName) {
         String dirPath = editText_pathToFolder.getText() + "/" + subfolderName + "/";
         //dirPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getPath();
-        File dirF = new File("/storage/sdcard0/Documents/");
-        if (!(dirF.exists())){
-            Log.e("Main:", String.format("Creating dirs: %b", dirF.mkdirs()));
+        File dirF = new File(dirPath);
+        if (! dirF.exists()){
+            dirF.mkdirs();
         }
+
+
         String fullPath = dirPath + "Doc.jpg";
-        File tmpImage;
-        try{
-            tmpImage= File.createTempFile(
-                "Doc",  /* prefix */
-                ".jpg",         /* suffix */
-                dirF      /* dir ectory */
-        );
-        }catch (IOException e){
-            Log.e("Main:", "Failed to create the temp file!");
-            e.printStackTrace();
-            return;
-        }
+
+
+        startService(new Intent(StartingActivity.this, ZeeCamService.class).putExtra("path", fullPath));
 
         //File output = new File(new File(getFilesDir(), DOCUMENTS), "lol.jpg");
-
-
-        Uri fileUri = Uri.fromFile(tmpImage);
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if(takePictureIntent.resolveActivity(getPackageManager())!=null){
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-            //takePictureIntent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-            startActivityForResult(takePictureIntent, PHOTO_RESULT);
-        }
     }
 
     protected void captureAndWriteDocumentToSDCard_INSTANT(String docName){
