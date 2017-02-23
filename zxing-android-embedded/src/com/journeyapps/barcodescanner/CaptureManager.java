@@ -360,10 +360,10 @@ public class CaptureManager {
                 Dirfile.mkdirs();
                 // File bitmapFile = File.createTempFile("barcodeimage", ".jpg", activity.getCacheDir());
                 Date date = new Date();
-                DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+                DateFormat dateFormat = new SimpleDateFormat("HH-mm-ss");
 
 
-                File bitmapFile = new File(Dirfile.getAbsolutePath() , "barcodeimage"+ dateFormat.format(date) );
+                File bitmapFile = new File(Dirfile.getAbsolutePath() , "barcodeimage"+ dateFormat.format(date) + ".jpg" );
                 if (! bitmapFile.exists()) {
                     bitmapFile.createNewFile();
                 }
