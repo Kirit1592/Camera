@@ -25,7 +25,7 @@ public class BarcodeResult {
     protected Result mResult;
     protected SourceData sourceData;
 
-    private final int mScaleFactor = 2;
+    private final int mScaleFactor = 1;
 
     public BarcodeResult(Result result, SourceData sourceData) {
         this.mResult = result;

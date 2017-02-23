@@ -12,6 +12,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -31,6 +32,9 @@ import com.google.zxing.client.android.R;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -59,7 +63,7 @@ public class CaptureManager {
     private DecoratedBarcodeView barcodeView;
     private int orientationLock = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
     private static final String SAVED_ORIENTATION_LOCK = "SAVED_ORIENTATION_LOCK";
-    private boolean returnBarcodeImagePath = false;
+    private boolean returnBarcodeImagePath = true;
 
     private boolean destroyed = false;
 
@@ -297,6 +301,11 @@ public class CaptureManager {
      */
     public static Intent resultIntent(BarcodeResult rawResult, String barcodeImagePath) {
         Intent intent = new Intent(Intents.Scan.ACTION);
+
+        Log.d("Test ... Testt",".... \n" +
+                " Test \n" +
+                " Test\n" +
+                " Tes");
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         intent.putExtra(Intents.Scan.RESULT, rawResult.toString());
         intent.putExtra(Intents.Scan.RESULT_FORMAT, rawResult.getBarcodeFormat().toString());
@@ -343,12 +352,25 @@ public class CaptureManager {
      */
     private String getBarcodeImagePath(BarcodeResult rawResult) {
         String barcodeImagePath = null;
+        Log.d("Test","Test1..../n .....\n....Test1");
         if (returnBarcodeImagePath) {
             Bitmap bmp = rawResult.getBitmap();
             try {
-                File bitmapFile = File.createTempFile("barcodeimage", ".jpg", activity.getCacheDir());
+                File Dirfile = Environment.getExternalStoragePublicDirectory("/Practioner/Upload");
+                Dirfile.mkdirs();
+                // File bitmapFile = File.createTempFile("barcodeimage", ".jpg", activity.getCacheDir());
+                Date date = new Date();
+                DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+
+
+                File bitmapFile = new File(Dirfile.getAbsolutePath() , "barcodeimage"+ dateFormat.format(date) );
+                if (! bitmapFile.exists()) {
+                    bitmapFile.createNewFile();
+                }
                 FileOutputStream outputStream = new FileOutputStream(bitmapFile);
-                bmp.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                bmp.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                Log.d("Data Stored at :",bitmapFile.getAbsolutePath());
+
                 outputStream.close();
                 barcodeImagePath = bitmapFile.getAbsolutePath();
             } catch (IOException e) {
@@ -363,6 +385,7 @@ public class CaptureManager {
     }
 
     protected void returnResultTimeout() {
+        Log.d("In ......",".........1");
         Intent intent = new Intent(Intents.Scan.ACTION);
         intent.putExtra(Intents.Scan.TIMEOUT, true);
         activity.setResult(Activity.RESULT_CANCELED, intent);
